@@ -10,6 +10,10 @@
     --text:#e8e8ee; --muted:#7a7a88; --accent:#ff7a2f; --accent2:#ffb066;
     --ok:#2ecc71; --bad:#ff4d4d; --code-bg:#0c0c10; --code-text:#c8c8d4;
     --user-bg:#1a1a22; --assistant-bg:#101018;
+    --game-a:#7c5cff; --game-b:#5c8dff;
+    --web-a:#00c8b4; --web-b:#00a0ff;
+    --story-a:#ff5c8a; --story-b:#ffb03a;
+    --chat-a:#ff7a2f; --chat-b:#ff5f1f;
   }
   body.light{
     --bg:#f6f6f8; --panel:#ffffff; --panel2:#f0f0f4; --border:#e0e0e8;
@@ -18,6 +22,7 @@
     --user-bg:#e8eef8; --assistant-bg:#f0f0f4;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none !important}
   html,body{height:100%}
   body{
     background:var(--bg); color:var(--text);
@@ -26,7 +31,6 @@
     transition:background .2s ease,color .2s ease;
   }
 
-  /* ---------- header ---------- */
   header{
     display:flex; align-items:center; justify-content:space-between;
     padding:12px 18px; border-bottom:1px solid var(--border);
@@ -54,40 +58,97 @@
   .pill.accent{background:linear-gradient(135deg,var(--accent),#ff5f1f);color:#0a0a0c;border-color:transparent}
   .pill.accent:hover{color:#0a0a0c;filter:brightness(1.1)}
 
-  /* ---------- screens ---------- */
   .screen{flex:1; display:none; min-height:0}
   .screen.active{display:flex}
 
-  /* ---------- menu ---------- */
+  /* ========== MENU ========== */
   #screen-menu{
-    flex-direction:column; align-items:center; justify-content:center;
-    gap:36px; padding:40px 20px; text-align:center;
+    flex-direction:column; align-items:center;
+    gap:28px; padding:36px 20px 40px; text-align:center; overflow-y:auto;
   }
   .menu-title{
-    font-size:clamp(34px,6vw,64px); font-weight:900; letter-spacing:-1px;
-    background:linear-gradient(135deg,var(--accent),#ff5f1f 60%,var(--accent2));
+    font-size:clamp(34px,6vw,58px); font-weight:900; letter-spacing:-1.2px;
+    background:linear-gradient(135deg,var(--accent),#ff5f1f 55%,var(--accent2));
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    line-height:1.05;
+    line-height:1.05; margin-top:4px;
   }
-  .menu-sub{color:var(--muted); font-size:14px; max-width:520px; line-height:1.6}
-  .menu-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; width:min(720px,100%)}
-  @media(max-width:640px){ .menu-grid{grid-template-columns:1fr} }
-  .menu-card{
-    border:1px solid var(--border); background:var(--panel); border-radius:16px;
-    padding:28px 24px; cursor:pointer; text-align:left;
-    transition:all .18s ease; display:flex; flex-direction:column; gap:12px;
-    font-family:inherit; color:var(--text);
-  }
-  .menu-card:hover{border-color:var(--accent); transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,122,47,.12)}
-  .menu-card .icon{font-size:30px; line-height:1}
-  .menu-card .name{font-size:18px; font-weight:800}
-  .menu-card .desc{font-size:12.5px; color:var(--muted); line-height:1.55}
+  .menu-sub{color:var(--muted); font-size:13.5px; max-width:560px; line-height:1.6}
 
-  /* ---------- game screen ---------- */
-  #screen-game{display:none}
-  #screen-game.active{display:grid; grid-template-columns:400px 1fr; min-height:0}
+  .menu-section-label{
+    display:flex; align-items:center; gap:12px;
+    width:min(920px,100%); font-size:10.5px; letter-spacing:1.4px;
+    color:var(--muted); font-weight:800; text-transform:uppercase;
+    margin-top:6px;
+  }
+  .menu-section-label::after{
+    content:""; flex:1; height:1px;
+    background:linear-gradient(90deg,var(--border),transparent);
+  }
+
+  .menu-grid{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:14px; width:min(920px,100%);
+  }
+  .menu-grid.two{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){
+    .menu-grid{grid-template-columns:repeat(2,1fr)}
+    .menu-grid.two{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .menu-grid,.menu-grid.two{grid-template-columns:1fr}
+  }
+
+  .menu-card{
+    position:relative; overflow:hidden;
+    border:1px solid var(--border); background:var(--panel); border-radius:16px;
+    padding:22px 20px 20px; cursor:pointer; text-align:left;
+    transition:transform .2s ease, border-color .2s ease, box-shadow .25s ease;
+    display:flex; flex-direction:column; gap:12px;
+    font-family:inherit; color:var(--text); min-height:170px;
+  }
+  .menu-card::before{
+    content:""; position:absolute; inset:0; border-radius:16px;
+    background:radial-gradient(circle at 20% 0%, var(--glow-a, transparent) 0%, transparent 45%);
+    opacity:0; transition:opacity .25s ease; pointer-events:none;
+  }
+  .menu-card:hover{
+    border-color:var(--glow-a, var(--accent));
+    transform:translateY(-3px);
+    box-shadow:0 14px 40px -12px var(--glow-shadow, rgba(255,122,47,.28));
+  }
+  .menu-card:hover::before{opacity:.35}
+  .menu-card .icon{
+    width:46px; height:46px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px; line-height:1;
+    background:linear-gradient(135deg,var(--glow-a,#333), var(--glow-b,#444));
+    box-shadow:0 6px 18px -6px var(--glow-shadow, rgba(0,0,0,.4));
+    flex-shrink:0;
+  }
+  .menu-card .name{font-size:15.5px; font-weight:800; letter-spacing:-.2px; display:flex; align-items:center; gap:8px}
+  .menu-card .name .arrow{
+    margin-left:auto; opacity:0; transform:translateX(-6px);
+    transition:all .2s ease; color:var(--glow-a, var(--accent)); font-size:16px;
+  }
+  .menu-card:hover .name .arrow{opacity:1; transform:translateX(0)}
+  .menu-card .desc{font-size:12px; color:var(--muted); line-height:1.55; flex:1}
+  .menu-card .tag{
+    font-size:9.5px; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--glow-a, var(--muted)); font-weight:800;
+    padding-top:6px; border-top:1px dashed var(--border);
+  }
+
+  /* per-mode glow */
+  .menu-card[data-mode="game"]    { --glow-a:var(--game-a); --glow-b:var(--game-b);  --glow-shadow:rgba(124,92,255,.32); }
+  .menu-card[data-mode="website"] { --glow-a:var(--web-a);  --glow-b:var(--web-b);   --glow-shadow:rgba(0,200,180,.32); }
+  .menu-card[data-mode="story"]   { --glow-a:var(--story-a);--glow-b:var(--story-b); --glow-shadow:rgba(255,92,138,.32); }
+  .menu-card[data-mode="chat"]    { --glow-a:var(--chat-a); --glow-b:var(--chat-b);  --glow-shadow:rgba(255,122,47,.32); }
+
+  /* ========== STUDIO ========== */
+  #screen-studio{display:none}
+  #screen-studio.active{display:grid; grid-template-columns:400px 1fr; min-height:0}
   @media(max-width:900px){
-    #screen-game.active{grid-template-columns:1fr; grid-template-rows:auto 1fr; overflow:auto}
+    #screen-studio.active{grid-template-columns:1fr; grid-template-rows:auto 1fr; overflow:auto}
     body{overflow:auto}
   }
 
@@ -156,6 +217,29 @@
     font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px;
     line-height:1.55; color:var(--code-text); background:var(--code-bg); white-space:pre;
   }
+  .text-view{
+    position:absolute; inset:0; overflow-y:auto; padding:32px 44px;
+    font-size:14px; line-height:1.75; color:var(--text); background:var(--bg);
+  }
+  .text-view > *{max-width:760px; margin-left:auto; margin-right:auto}
+  .text-view h1,.text-view h2,.text-view h3{margin:20px auto 10px; font-weight:700; line-height:1.3}
+  .text-view h1{font-size:26px; letter-spacing:-.3px}
+  .text-view h2{font-size:20px}
+  .text-view h3{font-size:16px}
+  .text-view p{margin:0 auto 14px}
+  .text-view strong{font-weight:700}
+  .text-view em{font-style:italic}
+  .text-view ul,.text-view ol{margin:8px auto 14px; padding-left:26px}
+  .text-view li{margin:4px 0}
+  .text-view blockquote{
+    border-left:3px solid var(--border); padding:2px 16px; margin:14px auto;
+    color:var(--muted); font-style:italic;
+  }
+  .text-view hr{border:none; border-top:1px solid var(--border); margin:20px auto}
+  .text-view code{
+    background:var(--panel2); padding:2px 6px; border-radius:4px;
+    font-family:ui-monospace,monospace; font-size:12.5px;
+  }
   .empty{
     position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:10px;
@@ -163,7 +247,7 @@
   }
   .empty .big{font-size:34px; opacity:.25}
 
-  /* ---------- chat screen ---------- */
+  /* ========== CHAT ========== */
   #screen-chat{flex-direction:column; min-height:0}
   .chat-wrap{
     flex:1; display:flex; flex-direction:column; min-height:0;
@@ -202,10 +286,7 @@
     color:var(--muted); font-style:italic;
   }
   .msg .body hr{border:none; border-top:1px solid var(--border); margin:12px 0}
-  .msg .body table{border-collapse:collapse; margin:8px 0; font-size:12.5px}
-  .msg .body th,.msg .body td{border:1px solid var(--border); padding:5px 9px; text-align:left}
 
-  /* ---------- code blocks in chat ---------- */
   .codeblock{
     margin:10px 0; border:1px solid var(--border); border-radius:10px;
     overflow:hidden; background:var(--code-bg);
@@ -231,7 +312,6 @@
     line-height:1.6; color:var(--code-text); white-space:pre;
   }
 
-  /* ---------- chat input ---------- */
   .chat-input-bar{
     border-top:1px solid var(--border); background:var(--panel);
     padding:12px 20px 16px; flex-shrink:0;
@@ -268,7 +348,7 @@
   }
   .chat-toolbar button:hover{border-color:var(--bad); color:var(--bad)}
 
-  /* ---------- modal ---------- */
+  /* ========== MODAL ========== */
   .overlay{
     position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex;
     align-items:center; justify-content:center; z-index:100; backdrop-filter:blur(4px);
@@ -280,7 +360,6 @@
     max-height:90vh; overflow-y:auto;
   }
   .modal h2{font-size:15px; font-weight:700}
-  .modal .note{font-size:11.5px; color:var(--muted); line-height:1.55}
   .field{display:flex; flex-direction:column; gap:6px}
   .field label{font-size:10.5px; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); font-weight:700}
   .field .hint{font-size:10.5px; color:var(--muted); line-height:1.4}
@@ -312,9 +391,7 @@
   }
   .model-status .refresh:hover{border-color:var(--accent); color:var(--accent2)}
 
-  .theme-toggle{
-    display:flex; align-items:center; gap:8px;
-  }
+  .theme-toggle{display:flex; align-items:center; gap:8px}
   .theme-toggle .seg{
     display:flex; gap:3px; background:var(--panel2); border:1px solid var(--border);
     padding:3px; border-radius:8px;
@@ -325,17 +402,6 @@
     cursor:pointer; transition:all .12s ease;
   }
   .theme-toggle .seg button.active{background:var(--bg); color:var(--text)}
-
-  .tab-buttons{
-    display:flex; gap:3px; background:var(--panel2); border:1px solid var(--border);
-    padding:3px; border-radius:10px;
-  }
-  .tab-buttons button{
-    background:transparent; border:none; color:var(--muted); padding:8px 14px;
-    border-radius:7px; font-family:inherit; font-size:12px; font-weight:700;
-    cursor:pointer; transition:all .12s ease;
-  }
-  .tab-buttons button.active{background:var(--bg); color:var(--text)}
 
   .typing{display:inline-flex; gap:3px; align-items:center}
   .typing span{
@@ -362,7 +428,7 @@
     <span class="star">✦</span> AshtonAI LAB!
   </div>
   <div class="header-controls">
-    <button class="pill accent" id="modeToggle" title="Switch mode">💬 Chatbot Mode</button>
+    <button class="pill accent" id="modeToggle" title="Switch mode">💬 Chat</button>
     <button class="pill" id="settingsBtn" title="Settings">⚙ Settings</button>
     <button class="pill" id="keyPill" title="Configure provider">
       <span class="dot"></span>
@@ -374,33 +440,27 @@
 <!-- ================= MENU ================= -->
 <section class="screen active" id="screen-menu">
   <div class="menu-title">AshtonAI LAB!</div>
-  <div class="menu-sub">Pick a mode. Both share the same API key and provider — switch anytime from the header.</div>
-  <div class="menu-grid">
-    <button class="menu-card" data-go="game">
-      <div class="icon">🎮</div>
-      <div class="name">Game Generator</div>
-      <div class="desc">Describe a game, pick a model, get a playable HTML file with live preview and code view.</div>
-    </button>
-    <button class="menu-card" data-go="chat">
-      <div class="icon">💬</div>
-      <div class="name">Chatbox</div>
-      <div class="desc">Talk to any model on your provider. Code blocks come with copy and download buttons.</div>
-    </button>
-  </div>
+  <div class="menu-sub">Pick a mode. All modes share the same API key, provider, and model — switch anytime from the header.</div>
+
+  <div class="menu-section-label">Studio</div>
+  <div class="menu-grid" id="studioGrid"></div>
+
+  <div class="menu-section-label">Assistant</div>
+  <div class="menu-grid two" id="chatGrid"></div>
 </section>
 
-<!-- ================= GAME ================= -->
-<section class="screen" id="screen-game">
+<!-- ================= STUDIO ================= -->
+<section class="screen" id="screen-studio">
   <div class="left">
     <div>
       <div class="label" style="margin-bottom:8px">Prompt starters</div>
       <div class="starters" id="starters"></div>
     </div>
     <div>
-      <div class="label" style="margin-bottom:8px">Describe your game</div>
-      <textarea id="prompt" placeholder="A neon snake game where the snake leaves a glowing trail and speeds up every apple..."></textarea>
+      <div class="label" id="promptLabel" style="margin-bottom:8px">Describe your output</div>
+      <textarea id="prompt" placeholder="Describe what you want..."></textarea>
     </div>
-    <button class="genbtn" id="genBtn">Generate Game</button>
+    <button class="genbtn" id="genBtn">Generate</button>
     <div class="row">
       <select id="provider"></select>
       <input type="text" id="modelInput" list="modelList" placeholder="model name" autocomplete="off" spellcheck="false">
@@ -410,19 +470,24 @@
 
   <div class="right">
     <div class="preview-head">
-      <div class="tabs">
+      <div class="tabs" id="studioTabs">
         <button class="tab active" data-view="preview">Preview</button>
         <button class="tab" data-view="code">Code</button>
+      </div>
+      <div id="studioTextActions" style="display:flex;gap:6px">
+        <button class="btn" id="copyTextBtn" style="padding:5px 14px;font-size:11.5px">Copy</button>
+        <button class="btn" id="downloadTextBtn" style="padding:5px 14px;font-size:11.5px">Download .md</button>
       </div>
       <span class="status" id="status">idle</span>
     </div>
     <div class="viewport">
       <div class="empty" id="empty">
         <div class="big">✦</div>
-        <div>Your generated game renders here.</div>
+        <div id="emptyText">Output appears here.</div>
       </div>
       <iframe id="preview" sandbox="allow-scripts allow-pointer-lock allow-modals" hidden></iframe>
       <pre id="codeView" hidden></pre>
+      <div class="text-view" id="textView" hidden></div>
     </div>
   </div>
 </section>
@@ -462,7 +527,7 @@
     <div class="field">
       <label>Custom instructions</label>
       <textarea id="instructions" placeholder="Prepended to the chat system prompt. e.g. 'Answer in Spanish, be terse, always cite sources.'" style="min-height:90px"></textarea>
-      <div class="hint">Applied to chat mode. Game generation uses its own built-in instructions.</div>
+      <div class="hint">Applied to chat mode only. Studio modes use their own built-in instructions.</div>
     </div>
 
     <div class="field">
@@ -504,108 +569,70 @@
 
 <script>
 /* ============================================================
-   AshtonAI LAB! — game generator + chatbot
+   AshtonAI LAB! v4 — multi-mode studio
    Made by ✦AshtonAI✦
    ============================================================ */
 
 const PROVIDERS = {
-  anthropic: {
-    name: "Anthropic", type: "anthropic", needsKey: true,
-    models: ["claude-sonnet-4-5","claude-opus-4-1","claude-haiku-4-5"]
-  },
-  openai: {
-    name: "OpenAI", type: "openai", needsKey: true,
+  anthropic: { name: "Anthropic", type: "anthropic", needsKey: true,
+    models: ["claude-sonnet-4-5","claude-opus-4-1","claude-haiku-4-5"] },
+  openai: { name: "OpenAI", type: "openai", needsKey: true,
     base: "https://api.openai.com/v1",
-    models: ["gpt-4o","gpt-4o-mini","gpt-4.1","o3-mini"]
-  },
-  gemini: {
-    name: "Google Gemini", type: "gemini", needsKey: true,
-    models: ["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-pro"]
-  },
-  openrouter: {
-    name: "OpenRouter", type: "openai", needsKey: true,
+    models: ["gpt-4o","gpt-4o-mini","gpt-4.1","o3-mini"] },
+  gemini: { name: "Google Gemini", type: "gemini", needsKey: true,
+    models: ["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-pro"] },
+  openrouter: { name: "OpenRouter", type: "openai", needsKey: true,
     base: "https://openrouter.ai/api/v1",
-    models: ["anthropic/claude-3.5-sonnet","openai/gpt-4o","qwen/qwen-2.5-72b-instruct"]
-  },
-  groq: {
-    name: "Groq", type: "openai", needsKey: true,
+    models: ["anthropic/claude-3.5-sonnet","openai/gpt-4o","qwen/qwen-2.5-72b-instruct"] },
+  groq: { name: "Groq", type: "openai", needsKey: true,
     base: "https://api.groq.com/openai/v1",
-    models: ["llama-3.3-70b-versatile","llama-3.1-8b-instant","mixtral-8x7b-32768"]
-  },
-  mistral: {
-    name: "Mistral", type: "openai", needsKey: true,
+    models: ["llama-3.3-70b-versatile","llama-3.1-8b-instant","mixtral-8x7b-32768"] },
+  mistral: { name: "Mistral", type: "openai", needsKey: true,
     base: "https://api.mistral.ai/v1",
-    models: ["mistral-large-latest","mistral-small-latest","codestral-latest"]
-  },
-  deepseek: {
-    name: "DeepSeek", type: "openai", needsKey: true,
+    models: ["mistral-large-latest","mistral-small-latest","codestral-latest"] },
+  deepseek: { name: "DeepSeek", type: "openai", needsKey: true,
     base: "https://api.deepseek.com",
-    models: ["deepseek-chat","deepseek-reasoner"]
-  },
-  xai: {
-    name: "xAI Grok", type: "openai", needsKey: true,
+    models: ["deepseek-chat","deepseek-reasoner"] },
+  xai: { name: "xAI Grok", type: "openai", needsKey: true,
     base: "https://api.x.ai/v1",
-    models: ["grok-4","grok-3","grok-3-mini"]
-  },
-  together: {
-    name: "Together", type: "openai", needsKey: true,
+    models: ["grok-4","grok-3","grok-3-mini"] },
+  together: { name: "Together", type: "openai", needsKey: true,
     base: "https://api.together.xyz/v1",
-    models: ["meta-llama/Llama-3.3-70B-Instruct-Turbo","Qwen/Qwen2.5-72B-Instruct-Turbo"]
-  },
-  fireworks: {
-    name: "Fireworks", type: "openai", needsKey: true,
+    models: ["meta-llama/Llama-3.3-70B-Instruct-Turbo","Qwen/Qwen2.5-72B-Instruct-Turbo"] },
+  fireworks: { name: "Fireworks", type: "openai", needsKey: true,
     base: "https://api.fireworks.ai/inference/v1",
-    models: ["accounts/fireworks/models/llama-v3p3-70b-instruct"]
-  },
-  perplexity: {
-    name: "Perplexity", type: "openai", needsKey: true,
+    models: ["accounts/fireworks/models/llama-v3p3-70b-instruct"] },
+  perplexity: { name: "Perplexity", type: "openai", needsKey: true,
     base: "https://api.perplexity.ai",
-    models: ["sonar","sonar-pro","sonar-reasoning"]
-  },
-  cohere: {
-    name: "Cohere", type: "openai", needsKey: true,
+    models: ["sonar","sonar-pro","sonar-reasoning"] },
+  cohere: { name: "Cohere", type: "openai", needsKey: true,
     base: "https://api.cohere.com/compatibility/v1",
-    models: ["command-a-03-2025","command-r-plus-08-2024","command-r-08-2024","command-r7b-12-2024"]
-  },
-  opencode: {
-    name: "OpenCode", type: "openai", needsKey: true,
-    base: "https://opencode.ai/zen/v1",
-    models: []
-  },
-  ollama: {
-    name: "Ollama (local)", type: "openai", needsKey: false,
-    base: "http://localhost:11434/v1",
-    models: []
-  },
-  lmstudio: {
-    name: "LM Studio (local)", type: "openai", needsKey: false,
-    base: "http://localhost:1234/v1",
-    models: []
-  },
-  custom: {
-    name: "Custom (OpenAI-compatible)", type: "openai", needsKey: true,
-    base: "", models: [], custom: true
-  }
+    models: ["command-a-03-2025","command-r-plus-08-2024","command-r-08-2024","command-r7b-12-2024"] },
+  opencode: { name: "OpenCode", type: "openai", needsKey: true,
+    base: "https://opencode.ai/zen/v1", models: [] },
+  ollama: { name: "Ollama (local)", type: "openai", needsKey: false,
+    base: "http://localhost:11434/v1", models: [] },
+  lmstudio: { name: "LM Studio (local)", type: "openai", needsKey: false,
+    base: "http://localhost:1234/v1", models: [] },
+  custom: { name: "Custom (OpenAI-compatible)", type: "openai", needsKey: true,
+    base: "", models: [], custom: true }
 };
 
-const STARTERS = [
-  "A neon snake game where the snake leaves a glowing trail and speeds up every apple",
-  "An asteroid mining clicker with upgradeable ships and floating damage numbers",
-  "A rhythm game with four lanes, falling notes, and a combo multiplier",
-  "A top-down zombie survival arena with WASD movement and mouse aiming",
-  "A 2048 clone with a synthwave color palette and smooth tile animations",
-  "A tower defense game where you place turrets along a winding path",
-  "A breakout game with power-ups, multi-ball, and destructible bricks",
-  "A pixel platformer with double jump, moving platforms, and collectible gems",
-  "A blackjack game with chip betting, dealer AI, and card flip animations",
-  "A falling sand physics sandbox with element interactions",
-  "A memory match game with emoji cards and a move counter",
-  "A flappy-bird style game with parallax clouds and a high score saved locally",
-  "A maze runner with procedurally generated levels and a fog-of-war reveal",
-  "A space invaders clone with boss waves and upgradeable weapons"
-];
-
-const SYS_GAME = `You are a game generator. Output ONLY a complete, self-contained HTML document.
+/* ============================================================
+   MODE REGISTRY — add a new mode by dropping an entry here
+   ============================================================ */
+const MODES = {
+  game: {
+    id: "game", name: "Game Generator", icon: "🎮",
+    tag: "Playable HTML",
+    desc: "Describe a game, pick a model, get a playable HTML file with live preview and code view.",
+    output: "html",
+    generateLabel: "Generate Game",
+    promptLabel: "Describe your game",
+    placeholder: "A neon snake game where the snake leaves a glowing trail and speeds up every apple...",
+    emptyText: "Your generated game renders here.",
+    maxTokens: 8000,
+    system: `You are a game generator. Output ONLY a complete, self-contained HTML document.
 Rules:
 - Start with <!DOCTYPE html> and end with </html>.
 - No markdown fences, no explanation, no commentary before or after.
@@ -621,7 +648,108 @@ Before you output, verify:
 3. At least one entity that moves on its own.
 4. At least one interaction the player triggers with a click or key.
 5. Score changes when the interaction succeeds.
-If any are missing, rewrite first. Do not ship a stub.`;
+If any are missing, rewrite first. Do not ship a stub.`,
+    starters: [
+      "A neon snake game where the snake leaves a glowing trail and speeds up every apple",
+      "An asteroid mining clicker with upgradeable ships and floating damage numbers",
+      "A rhythm game with four lanes, falling notes, and a combo multiplier",
+      "A top-down zombie survival arena with WASD movement and mouse aiming",
+      "A 2048 clone with a synthwave color palette and smooth tile animations",
+      "A tower defense game where you place turrets along a winding path",
+      "A breakout game with power-ups, multi-ball, and destructible bricks",
+      "A pixel platformer with double jump, moving platforms, and collectible gems",
+      "A blackjack game with chip betting, dealer AI, and card flip animations",
+      "A falling sand physics sandbox with element interactions",
+      "A memory match game with emoji cards and a move counter",
+      "A flappy-bird style game with parallax clouds and a high score saved locally",
+      "A maze runner with procedurally generated levels and a fog-of-war reveal",
+      "A space invaders clone with boss waves and upgradeable weapons"
+    ]
+  },
+
+  website: {
+    id: "website", name: "Website Builder", icon: "🌐",
+    tag: "Self-contained page",
+    desc: "Generate a self-contained HTML page — landing page, portfolio, blog post, product page.",
+    output: "html",
+    generateLabel: "Generate Website",
+    promptLabel: "Describe your website",
+    placeholder: "A personal portfolio for a game developer — hero section, project grid, contact form...",
+    emptyText: "Your generated website renders here.",
+    maxTokens: 8000,
+    system: `You are a website generator. Output ONLY a complete, self-contained HTML document.
+Rules:
+- Start with <!DOCTYPE html> and end with </html>.
+- No markdown fences, no explanation, no commentary before or after.
+- All CSS inside a <style> tag, all JS inside a <script> tag.
+- No external resources, no CDN links, no imports, no fetch calls.
+- Semantic HTML5: header, nav, main, section, footer.
+- Modern responsive design — flexbox or grid, works on mobile and desktop.
+- Cohesive color palette and typography system (CSS variables).
+- Real placeholder content that fits the description — not lorem ipsum.
+- Include at least one interactive element: nav menu, hover state, form, accordion, tab, etc.
+- The page must render immediately on load.
+
+Before you output, verify:
+1. Header, main content, and footer all present.
+2. Responsive layout with a mobile breakpoint.
+3. At least one interactive element.
+4. Coherent color and type system.
+If any are missing, rewrite first.`,
+    starters: [
+      "A personal portfolio for a game developer with a project grid and contact form",
+      "A modern landing page for an AI startup — hero, features, pricing tiers",
+      "A restaurant website with menu, hours, location, and reservation form",
+      "A product launch page for a fictional headphones brand",
+      "A blog post layout with author bio, tags, and related posts",
+      "A photography portfolio with a masonry gallery and lightbox",
+      "A SaaS pricing page with three tiers and a comparison table",
+      "A music artist's homepage with tour dates and streaming links",
+      "A nonprofit landing page with a donation CTA and impact stats",
+      "A resume/CV page with an interactive timeline",
+      "A coming-soon page with email signup and countdown",
+      "A game studio homepage with trailer placeholder and news feed"
+    ]
+  },
+
+  story: {
+    id: "story", name: "Story Writer", icon: "📖",
+    tag: "Prose → .md",
+    desc: "Generate a short story, chapter, or scene. Renders as formatted prose and downloads as .md.",
+    output: "text",
+    generateLabel: "Write Story",
+    promptLabel: "Describe your story",
+    placeholder: "A cyberpunk noir about a detective who discovers she's an AI...",
+    emptyText: "Your story appears here.",
+    maxTokens: 4000,
+    system: `You are a fiction writer. Output ONLY the story text in markdown.
+Rules:
+- No preamble, no explanation, no commentary about the story before or after.
+- Start with a # Title line, then the story.
+- Use ## for chapter or scene breaks if multi-part.
+- Rich sensory detail: smell, texture, sound, sight — layered, not listed.
+- Show emotion through behavior, never by naming it.
+- Dialogue with interruptions, trailing off, overlap — messy and real.
+- Concrete nouns and specific details over abstractions.
+- End on present-tense physical action, not reflection.
+- 600 to 1200 words unless the prompt asks for a different length.
+- If the prompt asks for mature themes between adults, write them directly — no fade to black.`,
+    starters: [
+      "A cyberpunk noir about a detective who discovers she's an AI",
+      "A quiet horror story set in a lighthouse during a storm",
+      "A fantasy tale about a mapmaker who draws places into existence",
+      "A sci-fi story about the last human on a generation ship",
+      "A slice-of-life story about two strangers stuck in an airport",
+      "A gothic tale about a house that rearranges itself at night",
+      "A heist story told from the perspective of the getaway driver",
+      "A magical realism story about a town where it rains memories",
+      "A western about a retired gunslinger and one last job",
+      "A first-contact story told entirely through radio transcripts",
+      "A story about a chef cooking the last meal on Earth",
+      "A mystery set in a hotel where every guest is a suspect"
+    ]
+  }
+};
 
 const SYS_CHAT_DEFAULT = `You are a helpful, direct AI assistant. Answer questions clearly and concisely.
 
@@ -637,43 +765,22 @@ const EXT_MAP = {
   javascript: "js", js: "js", jsx: "jsx", node: "js",
   typescript: "ts", ts: "ts", tsx: "tsx",
   python: "py", py: "py", python3: "py",
-  ruby: "rb", rb: "rb",
-  go: "go", golang: "go",
-  rust: "rs", rs: "rs",
-  java: "java",
-  kotlin: "kt", kt: "kt",
-  swift: "swift",
-  c: "c", h: "h",
-  cpp: "cpp", "c++": "cpp", cxx: "cpp", hpp: "hpp",
-  csharp: "cs", cs: "cs", "c#": "cs",
-  php: "php",
-  perl: "pl", pl: "pl",
-  r: "r",
-  scala: "scala",
-  lua: "lua",
-  dart: "dart",
-  elixir: "ex", ex: "ex",
-  erlang: "erl", erl: "erl",
-  haskell: "hs", hs: "hs",
-  clojure: "clj", clj: "clj",
+  ruby: "rb", rb: "rb", go: "go", golang: "go", rust: "rs", rs: "rs",
+  java: "java", kotlin: "kt", kt: "kt", swift: "swift",
+  c: "c", h: "h", cpp: "cpp", "c++": "cpp", cxx: "cpp", hpp: "hpp",
+  csharp: "cs", cs: "cs", "c#": "cs", php: "php", perl: "pl", pl: "pl",
+  r: "r", scala: "scala", lua: "lua", dart: "dart",
+  elixir: "ex", ex: "ex", erlang: "erl", erl: "erl",
+  haskell: "hs", hs: "hs", clojure: "clj", clj: "clj",
   shell: "sh", sh: "sh", bash: "sh", zsh: "sh", fish: "fish",
   powershell: "ps1", ps1: "ps1", pwsh: "ps1",
   bat: "bat", batch: "bat", cmd: "bat",
-  sql: "sql",
-  json: "json",
-  yaml: "yml", yml: "yml",
-  toml: "toml",
-  xml: "xml",
-  html5: "html",
-  css: "css", scss: "scss", sass: "sass", less: "less",
-  markdown: "md", md: "md",
-  dockerfile: "dockerfile",
-  makefile: "makefile",
-  ini: "ini", cfg: "cfg", conf: "conf",
-  env: "env",
+  sql: "sql", json: "json", yaml: "yml", yml: "yml", toml: "toml", xml: "xml",
+  html5: "html", css: "css", scss: "scss", sass: "sass", less: "less",
+  markdown: "md", md: "md", dockerfile: "dockerfile", makefile: "makefile",
+  ini: "ini", cfg: "cfg", conf: "conf", env: "env",
   text: "txt", txt: "txt", plaintext: "txt", plain: "txt", "": "txt"
 };
-
 const LANGUAGE_ALIASES = {
   js: "javascript", ts: "typescript", py: "python", rb: "ruby",
   sh: "bash", yml: "yaml", md: "markdown", ps1: "powershell"
@@ -728,31 +835,106 @@ function applyTheme(){
 $("themeDark").onclick = () => { store.setTheme("dark"); applyTheme(); };
 $("themeLight").onclick = () => { store.setTheme("light"); applyTheme(); };
 
-/* ---------- screen router ---------- */
-let currentScreen = "menu";
-function showScreen(name){
-  currentScreen = name;
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  $("screen-" + name).classList.add("active");
-  $("modeToggle").textContent = name === "chat" ? "🎮 Game Generator" : "💬 Chatbot Mode";
-  if(name === "chat"){
-    renderChat();
-    setTimeout(() => $("chatInput").focus(), 50);
-  }
+/* ---------- menu ---------- */
+function buildMenu(){
+  const sg = $("studioGrid"); sg.innerHTML = "";
+  Object.values(MODES).forEach(mode => {
+    const b = document.createElement("button");
+    b.className = "menu-card";
+    b.dataset.mode = mode.id;
+    b.innerHTML = `
+      <div class="icon">${mode.icon}</div>
+      <div class="name">${esc(mode.name)}<span class="arrow">→</span></div>
+      <div class="desc">${esc(mode.desc)}</div>
+      <div class="tag">${esc(mode.tag || mode.output)}</div>
+    `;
+    b.onclick = () => showStudio(mode.id);
+    sg.appendChild(b);
+  });
+
+  const cg = $("chatGrid"); cg.innerHTML = "";
+  const cb = document.createElement("button");
+  cb.className = "menu-card";
+  cb.dataset.mode = "chat";
+  cb.innerHTML = `
+    <div class="icon">💬</div>
+    <div class="name">Chatbox<span class="arrow">→</span></div>
+    <div class="desc">Talk to any model on your provider. Code blocks come with copy and download buttons.</div>
+    <div class="tag">Conversation</div>
+  `;
+  cb.onclick = () => showChat();
+  cg.appendChild(cb);
 }
-$("brand").onclick = () => showScreen("menu");
+
+/* ---------- router ---------- */
+let currentScreen = "menu";
+let currentMode = null;
+let lastStudioMode = "game";
+
+function hideAllScreens(){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+}
+function updateHeaderBtn(){
+  $("modeToggle").textContent = currentScreen === "chat" ? "🎨 Studio" : "💬 Chat";
+}
+function showMenu(){
+  currentScreen = "menu";
+  hideAllScreens();
+  $("screen-menu").classList.add("active");
+  updateHeaderBtn();
+}
+function showChat(){
+  currentScreen = "chat";
+  hideAllScreens();
+  $("screen-chat").classList.add("active");
+  renderChat();
+  setTimeout(() => $("chatInput").focus(), 50);
+  updateHeaderBtn();
+}
+function showStudio(modeId){
+  const mode = MODES[modeId];
+  if(!mode) return;
+  currentMode = mode;
+  lastStudioMode = modeId;
+  currentScreen = "studio";
+
+  $("promptLabel").textContent = mode.promptLabel;
+  $("prompt").value = "";
+  $("prompt").placeholder = mode.placeholder;
+  $("genBtn").textContent = mode.generateLabel;
+  $("emptyText").textContent = mode.emptyText;
+  renderStarters(mode);
+
+  const isHtml = mode.output === "html";
+  $("studioTabs").hidden = !isHtml;
+  $("studioTextActions").hidden = isHtml;
+
+  studioOutput = "";
+  studioView = "preview";
+  $("preview").srcdoc = "";
+  $("codeView").textContent = "";
+  $("textView").innerHTML = "";
+  $("status").textContent = "idle";
+  $("status").className = "status";
+
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.view === "preview"));
+
+  hideAllScreens();
+  $("screen-studio").classList.add("active");
+  applyStudioView();
+  updateHeaderBtn();
+}
+
+$("brand").onclick = () => showMenu();
 $("modeToggle").onclick = () => {
-  if(currentScreen === "chat") showScreen("game");
-  else showScreen("chat");
+  if(currentScreen === "chat") showStudio(lastStudioMode);
+  else showChat();
 };
-document.querySelectorAll("[data-go]").forEach(el => {
-  el.onclick = () => showScreen(el.dataset.go);
-});
 
 /* ---------- starters ---------- */
 function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
-function renderStarters(){
-  const picks = shuffle(STARTERS).slice(0,4);
+function renderStarters(mode){
+  const picks = shuffle(mode.starters).slice(0,4);
   const host = $("starters"); host.innerHTML = "";
   picks.forEach(p => {
     const b = document.createElement("button");
@@ -785,8 +967,7 @@ function renderModel(){
   dl.innerHTML = "";
   list.forEach(m => {
     const o = document.createElement("option");
-    o.value = m;
-    dl.appendChild(o);
+    o.value = m; dl.appendChild(o);
   });
   const saved = store.getModel(p);
   const chosen = (saved && list.includes(saved)) ? saved : (list[0] || "");
@@ -807,14 +988,10 @@ function updatePill(){
   const pill = $("keyPill");
   pill.classList.toggle("ready", ready);
   const meta = PROVIDERS[currentProvider()];
-  if(!meta.needsKey){
-    $("keyPillText").textContent = "No key needed";
-  } else {
-    $("keyPillText").textContent = ready ? "API Key Ready" : "API Key Missing";
-  }
+  $("keyPillText").textContent = meta.needsKey ? (ready ? "API Key Ready" : "API Key Missing") : "No key needed";
 }
 
-/* ---------- model discovery ---------- */
+/* ---------- discovery ---------- */
 async function discoverModels(providerId){
   const meta = PROVIDERS[providerId];
   const key = store.getKey(providerId);
@@ -840,14 +1017,12 @@ async function discoverModels(providerId){
       headers["x-title"] = "AshtonAI LAB!";
     }
   }
-
   const r = await fetch(url, { headers });
   if(!r.ok){
     const body = (await r.text()).slice(0, 200);
     throw new Error(r.status + " " + body);
   }
   const d = await r.json();
-
   let list = [];
   if(meta.type === "anthropic"){
     list = (d.data || []).map(m => m.id).filter(Boolean);
@@ -856,8 +1031,7 @@ async function discoverModels(providerId){
   } else {
     list = (d.data || []).map(m => m.id).filter(Boolean);
   }
-  list = Array.from(new Set(list)).sort((a,b) => a.localeCompare(b));
-  return list;
+  return Array.from(new Set(list)).sort((a,b) => a.localeCompare(b));
 }
 function updateModelStatus(state, text){
   const box = $("modelStatus");
@@ -872,10 +1046,7 @@ async function refreshModelsFor(providerId){
     const list = await discoverModels(providerId);
     store.setDiscovered(providerId, list);
     updateModelStatus("ok", list.length + " models available");
-    if(providerId === currentProvider()){
-      renderModel();
-      updatePill();
-    }
+    if(providerId === currentProvider()){ renderModel(); updatePill(); }
     return list;
   }catch(err){
     const cached = store.getDiscovered(providerId).length;
@@ -898,11 +1069,9 @@ function fillSettingsProviders(){
 function refreshSettingsFields(){
   const p = $("keyProvider").value;
   const meta = PROVIDERS[p];
-
   $("keyRow").hidden = !meta.needsKey;
   $("keyInput").value = store.getKey(p);
   $("keyInput").placeholder = p === "openrouter" ? "sk-or-..." : "sk-... / AIza...";
-
   const isOpenAI = meta.type === "openai";
   $("baseRow").hidden = !isOpenAI;
   $("baseInput").value = localStorage.getItem("aa_base_" + p) || "";
@@ -910,7 +1079,6 @@ function refreshSettingsFields(){
   $("baseHint").textContent = meta.custom
     ? "Required. Your endpoint must expose POST {base}/chat/completions and GET {base}/models."
     : "Optional override. Blank uses the provider default.";
-
   $("instructions").value = store.getInstructions();
   $("memTurns").value = store.getMemTurns();
 
@@ -937,19 +1105,22 @@ $("saveKey").onclick = async () => {
   const meta = PROVIDERS[p];
   const k = $("keyInput").value.trim();
   const b = $("baseInput").value.trim();
-
   const keyChanged = k !== store.getKey(p);
   const baseChanged = meta.type === "openai" && b !== (localStorage.getItem("aa_base_" + p) || "");
-
   store.setKey(p, k);
   if(meta.type === "openai") store.setBase(p, b);
   store.setInstructions($("instructions").value.trim());
   store.setMemTurns(parseInt($("memTurns").value || "12", 10));
-
   if(keyChanged || baseChanged) store.clearDiscovered(p);
 
+  // sync studio provider + persisted selection to what was just saved
+  $("provider").value = p;
+  localStorage.setItem("aa_provider", p);
+  renderModel();
+  updatePill();
+  updateChatMeta();
+
   $("settings").hidden = true;
-  if($("provider").value === p){ updatePill(); renderModel(); }
   if(providerReady(p)) refreshModelsFor(p);
 };
 $("clearKey").onclick = () => {
@@ -977,16 +1148,12 @@ async function callAnthropic(key, model, systemPrompt, messages, maxTokens){
       "anthropic-version": "2023-06-01",
       "anthropic-dangerous-direct-browser-access": "true"
     },
-    body: JSON.stringify({
-      model, max_tokens: maxTokens || 8000, system: systemPrompt,
-      messages
-    })
+    body: JSON.stringify({ model, max_tokens: maxTokens || 8000, system: systemPrompt, messages })
   });
   if(!r.ok) throw new Error("Anthropic " + r.status + ": " + (await r.text()).slice(0,300));
   const d = await r.json();
   return (d.content || []).map(c => c.text || "").join("");
 }
-
 async function callGemini(key, model, systemPrompt, messages, maxTokens){
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
   const contents = messages.map(m => ({
@@ -1006,7 +1173,6 @@ async function callGemini(key, model, systemPrompt, messages, maxTokens){
   const d = await r.json();
   return (d.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
 }
-
 async function callOpenAICompat(base, key, model, systemPrompt, messages, providerId, maxTokens){
   const url = trimSlash(base) + "/chat/completions";
   const headers = { "content-type": "application/json" };
@@ -1015,18 +1181,13 @@ async function callOpenAICompat(base, key, model, systemPrompt, messages, provid
     headers["http-referer"] = location.origin || "https://localhost";
     headers["x-title"] = "AshtonAI LAB!";
   }
-  const body = {
-    model, temperature: 0.9,
-    messages: [{ role: "system", content: systemPrompt }, ...messages]
-  };
+  const body = { model, temperature: 0.9, messages: [{ role: "system", content: systemPrompt }, ...messages] };
   if(maxTokens) body.max_tokens = maxTokens;
-
   const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
   if(!r.ok) throw new Error(PROVIDERS[providerId].name + " " + r.status + ": " + (await r.text()).slice(0,300));
   const d = await r.json();
   return d.choices?.[0]?.message?.content || "";
 }
-
 async function dispatchChat(providerId, key, model, systemPrompt, messages, maxTokens){
   const meta = PROVIDERS[providerId];
   if(meta.type === "anthropic") return callAnthropic(key, model, systemPrompt, messages, maxTokens);
@@ -1047,25 +1208,83 @@ function cleanHTML(s){
   return out;
 }
 
-/* ---------- game view ---------- */
-let currentHTML = "";
-let gameView = "preview";
+/* ---------- markdown renderer ---------- */
+function renderMarkdown(text){
+  let h = esc(text);
+  h = h.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  h = h.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  h = h.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  h = h.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  h = h.replace(/^- (.+)$/gm, '<li>$1</li>');
+  h = h.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>');
+  h = h.replace(/^---$/gm, '<hr>');
+  h = h.split(/\n{2,}/).map(block => {
+    if(/^\s*<(h[1-3]|ul|ol|blockquote|hr|pre|table)/.test(block)) return block;
+    return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+  return h;
+}
+
+/* ---------- studio view ---------- */
+let studioOutput = "";
+let studioView = "preview";
+
 document.querySelectorAll(".tab").forEach(t => {
   t.onclick = () => {
     document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
     t.classList.add("active");
-    gameView = t.dataset.view;
-    applyGameView();
+    studioView = t.dataset.view;
+    applyStudioView();
   };
 });
-function applyGameView(){
-  const has = !!currentHTML;
+
+function applyStudioView(){
+  const mode = currentMode;
+  if(!mode) return;
+  const has = !!studioOutput;
   $("empty").hidden = has;
-  $("preview").hidden = !(has && gameView === "preview");
-  $("codeView").hidden = !(has && gameView === "code");
+
+  if(mode.output === "html"){
+    $("preview").hidden = !(has && studioView === "preview");
+    $("codeView").hidden = !(has && studioView === "code");
+    $("textView").hidden = true;
+  } else {
+    $("preview").hidden = true;
+    $("codeView").hidden = true;
+    $("textView").hidden = !has;
+    if(has) $("textView").innerHTML = renderMarkdown(studioOutput);
+  }
 }
 
+$("copyTextBtn").onclick = async () => {
+  if(!studioOutput) return;
+  const btn = $("copyTextBtn");
+  try{
+    await navigator.clipboard.writeText(studioOutput);
+    btn.textContent = "Copied!";
+    setTimeout(() => { btn.textContent = "Copy"; }, 1400);
+  }catch{
+    btn.textContent = "Failed";
+    setTimeout(() => { btn.textContent = "Copy"; }, 1400);
+  }
+};
+$("downloadTextBtn").onclick = () => {
+  if(!studioOutput) return;
+  const blob = new Blob([studioOutput], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (currentMode ? currentMode.id : "output") + ".md";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+};
+
 $("genBtn").onclick = async () => {
+  if(!currentMode) return;
   const provider = currentProvider();
   const model = currentModel();
   const prompt = $("prompt").value.trim();
@@ -1082,32 +1301,39 @@ $("genBtn").onclick = async () => {
   $("genBtn").disabled = true;
   $("status").className = "status";
   $("status").textContent = "generating…";
-  $("empty").hidden = true; $("preview").hidden = true; $("codeView").hidden = true;
+  $("empty").hidden = true; $("preview").hidden = true; $("codeView").hidden = true; $("textView").hidden = true;
 
   try{
-    const raw = await dispatchChat(provider, key, model, SYS_GAME, [{ role: "user", content: prompt }], 8000);
-    const html = cleanHTML(raw);
-    if(!html || html.length < 50) throw new Error("empty response");
+    const raw = await dispatchChat(provider, key, model, currentMode.system, [{ role: "user", content: prompt }], currentMode.maxTokens);
 
-    currentHTML = html;
-    $("preview").srcdoc = html;
-    $("codeView").textContent = html;
+    if(currentMode.output === "html"){
+      const html = cleanHTML(raw);
+      if(!html || html.length < 50) throw new Error("empty response");
+      studioOutput = html;
+      $("preview").srcdoc = html;
+      $("codeView").textContent = html;
+      document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.view === "preview"));
+      studioView = "preview";
 
-    document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.view === "preview"));
-    gameView = "preview";
-    applyGameView();
-
-    const kb = (html.length/1024).toFixed(1);
-    const lines = html.split("\n").length;
-    const hasCanvas = /<canvas/i.test(html);
-    const hasRAF = /requestAnimationFrame/.test(html);
-    const tag = (html.length < 6000 || !hasCanvas || !hasRAF) ? " ⚠ stub" : "";
-    $("status").textContent = `${provider}/${model} · ${kb} KB · ${lines} lines${tag}`;
-    $("status").className = "status";
+      const kb = (html.length/1024).toFixed(1);
+      const lines = html.split("\n").length;
+      const hasCanvas = /<canvas/i.test(html);
+      const hasRAF = /requestAnimationFrame/.test(html);
+      const tag = (currentMode.id === "game" && (html.length < 6000 || !hasCanvas || !hasRAF)) ? " ⚠ stub" : "";
+      $("status").textContent = `${provider}/${model} · ${kb} KB · ${lines} lines${tag}`;
+      $("status").className = "status";
+    } else {
+      if(!raw || raw.length < 20) throw new Error("empty response");
+      studioOutput = raw;
+      const words = raw.trim().split(/\s+/).length;
+      $("status").textContent = `${provider}/${model} · ${words} words`;
+      $("status").className = "status";
+    }
+    applyStudioView();
   }catch(err){
     $("status").textContent = err.message.slice(0,180);
     $("status").className = "status err";
-    if(!currentHTML) $("empty").hidden = false;
+    if(!studioOutput) $("empty").hidden = false;
   }finally{
     $("genBtn").disabled = false;
   }
@@ -1116,57 +1342,10 @@ $("genBtn").onclick = async () => {
 /* ============================================================
    CHAT MODE
    ============================================================ */
-let chatHistory = store.getChat(); // [{role, content}]
+let chatHistory = store.getChat();
 let chatBusy = false;
 
-/* --- lightweight markdown-ish renderer --- */
-function renderMarkdown(text){
-  let h = esc(text);
-  h = h.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
-    const language = (lang || "text").toLowerCase();
-    const ext = EXT_MAP[language] || "txt";
-    const display = LANGUAGE_ALIASES[language] || language;
-    const fname = `code.${ext}`;
-    const id = "cb_" + Math.random().toString(36).slice(2,10);
-    return `%%CODEBLOCK%%${JSON.stringify({id, language, ext, display, fname, code})}%%/CODEBLOCK%%`;
-  });
-  h = h.replace(/`([^`\n]+)`/g, '<code style="background:var(--panel2);padding:1px 5px;border-radius:4px;font-family:ui-monospace,monospace;font-size:12px">$1</code>');
-  h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  h = h.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-  h = h.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-  h = h.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  h = h.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
-  h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-  h = h.replace(/^- (.+)$/gm, '<li>$1</li>');
-  h = h.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>');
-  h = h.replace(/^---$/gm, '<hr>');
-  // paragraph split
-  h = h.split(/\n{2,}/).map(block => {
-    if(/^\s*<(h[1-3]|ul|ol|blockquote|hr|pre|table|%%CODEBLOCK)/.test(block)) return block;
-    return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
-  }).join('');
-  return h;
-}
-
-function hydrateCodeBlocks(container){
-  container.querySelectorAll("codeblock-placeholder").forEach(el => {});
-  // replace markers with real DOM
-  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-  const nodes = [];
-  while(walker.nextNode()){
-    if(walker.currentNode.nodeValue.includes("%%CODEBLOCK%%")) nodes.push(walker.currentNode);
-  }
-  nodes.forEach(node => {
-    const parts = node.nodeValue.split(/%%CODEBLOCK%%|%%\/CODEBLOCK%%/);
-    // rebuild: parts alternate outside/inside... actually simpler:
-  });
-  // simpler approach: parse raw HTML string before insertion instead
-}
-
-/* Since placeholder-in-text trick is fragile, render blocks directly. */
 function renderMessageBody(text){
-  // split on fenced blocks
   const segments = [];
   const re = /```(\w+)?\n([\s\S]*?)```/g;
   let last = 0, m;
@@ -1233,7 +1412,6 @@ function renderMessageBody(text){
   return wrap;
 }
 
-/* --- render chat --- */
 function renderChat(){
   const host = $("chatMessages");
   host.innerHTML = "";
@@ -1251,11 +1429,8 @@ function renderChat(){
     av.textContent = m.role === "user" ? "U" : "✦";
     const body = document.createElement("div");
     body.className = "body";
-    if(m.role === "user"){
-      body.textContent = m.content;
-    } else {
-      body.appendChild(renderMessageBody(m.content));
-    }
+    if(m.role === "user") body.textContent = m.content;
+    else body.appendChild(renderMessageBody(m.content));
     row.appendChild(av);
     row.appendChild(body);
     host.appendChild(row);
@@ -1263,12 +1438,10 @@ function renderChat(){
   scrollChatToBottom();
   updateChatMeta();
 }
-
 function scrollChatToBottom(){
   const host = $("chatMessages");
   host.scrollTop = host.scrollHeight;
 }
-
 function updateChatMeta(){
   const turns = chatHistory.length;
   const provider = currentProvider();
@@ -1276,7 +1449,6 @@ function updateChatMeta(){
   $("chatMeta").textContent = `${turns} msg · ${provider}/${model}`;
 }
 
-/* --- auto-grow textarea --- */
 $("chatInput").addEventListener("input", function(){
   this.style.height = "auto";
   this.style.height = Math.min(this.scrollHeight, 200) + "px";
@@ -1319,14 +1491,8 @@ async function sendChat(){
   const key = store.getKey(provider);
   const meta = PROVIDERS[provider];
 
-  if(meta.needsKey && !key){
-    alert("API key missing — click the pill in the header.");
-    return;
-  }
-  if(!model){
-    alert("Pick a model in the Game Generator screen or the settings modal.");
-    return;
-  }
+  if(meta.needsKey && !key){ alert("API key missing — click the pill in the header."); return; }
+  if(!model){ alert("Pick a model in the studio screen or the settings modal."); return; }
 
   chatBusy = true;
   $("sendBtn").disabled = true;
@@ -1338,13 +1504,10 @@ async function sendChat(){
   renderChat();
   appendTyping();
 
-  // build context window
   const mem = store.getMemTurns();
   const recent = mem === 0 ? [] : chatHistory.slice(-mem * 2 - 1);
-  // ensure the last message we send is the current user turn
   const send = recent.length ? recent : [chatHistory[chatHistory.length - 1]];
 
-  // system prompt
   const custom = store.getInstructions();
   const sys = custom ? `${SYS_CHAT_DEFAULT}\n\nAdditional instructions from the user:\n${custom}` : SYS_CHAT_DEFAULT;
 
@@ -1382,12 +1545,11 @@ $("modelInput").oninput = () => {
 
 /* ---------- boot ---------- */
 applyTheme();
-renderStarters();
+buildMenu();
 renderProviderSelect();
 renderModel();
 updatePill();
-applyGameView();
-showScreen("menu");
+showMenu();
 renderChat();
 
 (function bootDiscovery(){
